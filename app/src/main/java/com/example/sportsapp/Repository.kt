@@ -5,6 +5,7 @@ import com.example.sportsapp.Constants.BASE_URL
 import com.example.sportsapp.models.Article
 import com.example.sportsapp.models.Source
 import com.example.sportsapp.models.SportsModel
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -34,7 +35,7 @@ class Repository {
         Repository.create()
     }
     var disposable: Disposable? = null
-    var list: SportsModel? = null
+     var list: SportsModel?=null
 
 
     fun beginSearch() {
@@ -43,12 +44,16 @@ class Repository {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                    { result -> (handleResponse(result = result)) },
+                    { result -> (getObservableFromString(movieResponse = result)) },
                     { t: Throwable? -> t?.message /*error -> error.cause)*/ }
                 )
     }
 
     fun handleResponse(result: SportsModel) {
-        list.let { list = result }
+        list=result
+    }
+    private fun getObservableFromString(movieResponse: SportsModel): Observable<SportsModel> {
+        return Observable.just(movieResponse)
+        list=movieResponse
     }
 }

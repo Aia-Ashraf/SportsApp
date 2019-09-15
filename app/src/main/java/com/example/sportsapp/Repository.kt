@@ -1,6 +1,8 @@
 package com.example.sportsapp
 
+import android.util.Log
 import android.widget.TextView
+import android.widget.Toast
 import com.example.sportsapp.Constants.BASE_URL
 import com.example.sportsapp.models.Article
 import com.example.sportsapp.models.Source
@@ -35,25 +37,30 @@ class Repository {
         Repository.create()
     }
     var disposable: Disposable? = null
-     var list: SportsModel?=null
+     var list: SportsModel? = null
+    var articleList:Array<Article>?=null
 
 
     fun beginSearch() {
-        disposable =
             sportApiServe.getSportsList("eg", "sports", "aa101e13a76b4e259ab2cc739092edb7")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                    { result -> (getObservableFromString(movieResponse = result)) },
-                    { t: Throwable? -> t?.message /*error -> error.cause)*/ }
+                    {this::getObservableFromString},
+                    { this::handleError/*error -> error.cause)*/ }
                 )
     }
 
-    fun handleResponse(result: SportsModel) {
+/*    fun handleResponse(result: SportsModel) {
         list=result
-    }
-    private fun getObservableFromString(movieResponse: SportsModel): Observable<SportsModel> {
-        return Observable.just(movieResponse)
+    }*/
+     fun getObservableFromString(movieResponse: SportsModel) {
         list=movieResponse
+    articleList=movieResponse.articles.toTypedArray()
+    }
+    private fun handleError(error: Throwable) {
+
+        Log.d("aiaaaaaaaaaaaaaaaaa", error.localizedMessage)
+
     }
 }

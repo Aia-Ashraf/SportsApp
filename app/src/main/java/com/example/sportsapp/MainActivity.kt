@@ -66,10 +66,10 @@ class MainActivity : AppCompatActivity() {
     val sportApiServe by lazy {
         Repository.create()
     }
-
+    var disposable: Disposable? = null
 
     fun beginSearch() {
-        sportApiServe.getSportsList("eg", "sports", "aa101e13a76b4e259ab2cc739092edb7")
+       disposable= sportApiServe.getSportsList("eg", "sports", "aa101e13a76b4e259ab2cc739092edb7")
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(

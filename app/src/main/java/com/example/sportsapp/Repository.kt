@@ -16,7 +16,7 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
-class Repository {
+class Repository(var articleList: Array<Article>?) {
     companion object {
         fun create(): SportApiService {
             val retrofit = Retrofit.Builder()
@@ -37,30 +37,33 @@ class Repository {
         Repository.create()
     }
     var disposable: Disposable? = null
-     var list: SportsModel? = null
-    var articleList:Array<Article>?=null
+    var list: SportsModel? = null
 
 
     fun beginSearch() {
-            sportApiServe.getSportsList("eg", "sports", "aa101e13a76b4e259ab2cc739092edb7")
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    {this::getObservableFromString},
-                    { this::handleError/*error -> error.cause)*/ }
-                )
+        sportApiServe.getSportsList("eg", "sports", "aa101e13a76b4e259ab2cc739092edb7")
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                {getObservableFromString(it) },
+                { this::handleError/*error -> error.cause)*/ }
+            )
     }
 
-/*    fun handleResponse(result: SportsModel) {
-        list=result
-    }*/
-     fun getObservableFromString(movieResponse: SportsModel) {
-        list=movieResponse
-    articleList=movieResponse.articles.toTypedArray()
+    /*    fun handleResponse(result: SportsModel) {
+            list=result
+        }*/
+    fun getObservableFromString(movieResponse: SportsModel) {
+        list = movieResponse
+
+        articleList = movieResponse.articles.toTypedArray()
+
     }
+
     private fun handleError(error: Throwable) {
 
         Log.d("aiaaaaaaaaaaaaaaaaa", error.localizedMessage)
 
     }
+
 }

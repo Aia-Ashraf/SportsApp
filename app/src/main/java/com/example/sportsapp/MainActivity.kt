@@ -25,21 +25,30 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        beginSearch()
-        sportsModel?.let { getObservableFromString(it.articles) }
-        if(articleListt !=null) {
+        val sportApiServe by lazy {
+            Repository.create()
+        }
+        disposable= sportApiServe.getSportsList("eg", "sports", "aa101e13a76b4e259ab2cc739092edb7")
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                {
+                    articleListt=it.articles
+                    sportsAdapter = SportsAdapter(articleListt)
+                },
+                { error -> error.cause }
+            )
             viewLayoutManager = LinearLayoutManager(this)
             recyclerView = RecyclerView(this)
             recyclerView = findViewById<RecyclerView>(R.id.rv).apply {
                 setHasFixedSize(true)
                 layoutManager = viewLayoutManager
                 sportsAdapter = SportsAdapter(articleListt)
+                sportsAdapter?.list=articleListt
+                Log.d("aia",articleListt.toString())
             }
-            txt.text = articleListt.toString()
-            Log.d("aia",articleListt.toString())
-        }else   beginSearch()
-        sportsModel?.let { getObservableFromString(it.articles) }
+
+
     }
     override fun onPause() {
         super.onPause()
@@ -63,20 +72,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    val sportApiServe by lazy {
-        Repository.create()
-    }
+
+
     var disposable: Disposable? = null
 
     fun beginSearch() {
-       disposable= sportApiServe.getSportsList("eg", "sports", "aa101e13a76b4e259ab2cc739092edb7")
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                {getObservableFromString(it.articles) },
-                { this::handleError/*error -> error.cause)*/ }
 
-            )
     }
 
     fun getObservableFromString(articleList: List<Article>) {
@@ -86,6 +87,5 @@ class MainActivity : AppCompatActivity() {
     private fun handleError(error: Throwable) {
 
         Log.d("aiaaaaaaaaaaaaaaaaa", error.localizedMessage)
-
     }
 }

@@ -19,8 +19,11 @@ class SportsAdapter(var list: List<Article>?) : RecyclerView.Adapter<SportsAdapt
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+
         holder.textView.text = list?.get(position)!!.title
+
     }
 
     class MyViewHolder(val textView: TextView) : RecyclerView.ViewHolder(textView)
+
 }

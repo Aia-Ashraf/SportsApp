@@ -1,7 +1,9 @@
 package com.example.sportsapp
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,6 +24,7 @@ class MainActivity : AppCompatActivity() {
      var sportsAdapter: SportsAdapter?=null
     var articleListt: List<Article>?=null
     lateinit var recyclerView: RecyclerView
+    @SuppressLint("WrongConstant")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -38,15 +41,25 @@ class MainActivity : AppCompatActivity() {
                 },
                 { error -> error.cause }
             )
-            viewLayoutManager = LinearLayoutManager(this)
-            recyclerView = RecyclerView(this)
-            recyclerView = findViewById<RecyclerView>(R.id.rv).apply {
-                setHasFixedSize(true)
-                layoutManager = viewLayoutManager
-                sportsAdapter = SportsAdapter(articleListt)
-                sportsAdapter?.list=articleListt
-                Log.d("aia",articleListt.toString())
-            }
+
+
+        rv.layoutManager = LinearLayoutManager(this)
+        rv.adapter = SportsAdapter(articleListt)
+        sportsAdapter?.notifyItemInserted(articleListt?.size!!)
+
+        /*     viewLayoutManager = LinearLayoutManager(this)
+             recyclerView = RecyclerView(this)
+             recyclerView = findViewById<RecyclerView>(R.id.rv).apply {
+                 setHasFixedSize(true)
+                 viewLayoutManager=LinearLayoutManager(context, LinearLayout.VERTICAL, false)
+                 layoutManager = viewLayoutManager
+                 this.adapter= sportsAdapter
+
+                     sportsAdapter?.list=articleListt
+                 sportsAdapter?.notifyItemInserted(articleListt?.size!!)
+
+                 Log.d("aia",articleListt.toString())
+             }*/
 
 
     }

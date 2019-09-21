@@ -1,10 +1,12 @@
 package com.example.sportsapp
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sportsapp.models.Article
+import com.example.sportsapp.models.SportsModel
 import kotlinx.android.synthetic.main.row_item.view.*
 
 /*class SportsAdapter(var list: List<Article>?) : RecyclerView.Adapter<SportsAdapter.MyViewHolder>() {
@@ -30,7 +32,7 @@ import kotlinx.android.synthetic.main.row_item.view.*
 
 
 
-class SportsAdapter(var list: List<Article>?) : RecyclerView.Adapter<SportsAdapter.ViewHolder>() {
+class SportsAdapter(var list: SportsModel,context: Context) : RecyclerView.Adapter<SportsAdapter.ViewHolder>() {
 
     //this method is returning the view for each item in the list
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SportsAdapter.ViewHolder {
@@ -40,14 +42,14 @@ class SportsAdapter(var list: List<Article>?) : RecyclerView.Adapter<SportsAdapt
 
     //this method is binding the data on the list
     override fun onBindViewHolder(holder: SportsAdapter.ViewHolder, position: Int) {
-        holder.bindItems(this!!.list?.get(position)!!)
+        holder.bindItems(this!!.list.articles?.get(position)!!)
     }
 
     //this method is giving the size of the list
     override fun getItemCount(): Int {
-         if (list!!.size == null)
-            return 1
-        else return list!!.size
+         if (list?.articles?.size != null)
+            return list?.articles!!.size
+        else return 0
     }
 
     //the class is hodling the list view

@@ -3,7 +3,6 @@ package com.example.sportsapp
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
-import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -31,20 +30,20 @@ class MainActivity : AppCompatActivity() {
         val sportApiServe by lazy {
             Repository.create()
         }
-        disposable= sportApiServe.getSportsList("eg", "sports", "aa101e13a76b4e259ab2cc739092edb7")
+         sportApiServe.getSportsList("eg", "sports", "aa101e13a76b4e259ab2cc739092edb7")
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 {
                     articleListt=it.articles
-                    sportsAdapter = SportsAdapter(articleListt)
+                    sportsAdapter = sportsModel?.let { it1 -> SportsAdapter(it1,this) }
                 },
-                { error -> error.cause }
+                { error -> handleError(error.message )}
             )
 
 
         rv.layoutManager = LinearLayoutManager(this)
-        rv.adapter = SportsAdapter(articleListt)
+        rv.adapter = sportsModel?.let { SportsAdapter(it,this) }
         sportsAdapter?.notifyItemInserted(articleListt?.size!!)
 
         /*     viewLayoutManager = LinearLayoutManager(this)
@@ -97,8 +96,8 @@ class MainActivity : AppCompatActivity() {
       articleListt=articleList
     }
 
-    private fun handleError(error: Throwable) {
+    private fun handleError(error: String?) {
 
-        Log.d("aiaaaaaaaaaaaaaaaaa", error.localizedMessage)
+        Log.d("aiaaaaaaaaaaaaaaaaa", error.toString())
     }
 }

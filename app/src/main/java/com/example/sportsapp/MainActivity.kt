@@ -15,58 +15,31 @@ import kotlinx.android.synthetic.main.activity_main.*
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 
-class MainActivity : AppCompatActivity() {
+
+class MainActivity : AppCompatActivity(), MainView
+{
+
+
     lateinit var repository: Repository
     var sportsModel: SportsModel? = null
-    lateinit var viewLayoutManager: RecyclerView.LayoutManager
-     var sportsAdapter: SportsAdapter?=null
-    var articleListt: List<Article>?=null
+    lateinit var viewLayoutManager: LinearLayoutManager
+    lateinit var sportsAdapter: SportsAdapter
+    var articleListt: List<Article>? = null
     lateinit var recyclerView: RecyclerView
+    lateinit var sportsState: SportsState
+    lateinit var presenter: MainPresenter
+    lateinit var view: MainView
     @SuppressLint("WrongConstant")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val sportApiServe by lazy {
-            Repository.create()
-        }
-         sportApiServe.getSportsList("eg", "sports", "aa101e13a76b4e259ab2cc739092edb7")
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                {
-                    articleListt=it.articles
-                    sportsAdapter = sportsModel?.let { it1 -> SportsAdapter(it1,this) }
-                },
-                { error -> handleError(error.message )}
-            )
-
-
-        rv.layoutManager = LinearLayoutManager(this)
-        rv.adapter = sportsModel?.let { SportsAdapter(it,this) }
-        sportsAdapter?.notifyItemInserted(articleListt?.size!!)
-
-        /*     viewLayoutManager = LinearLayoutManager(this)
-             recyclerView = RecyclerView(this)
-             recyclerView = findViewById<RecyclerView>(R.id.rv).apply {
-                 setHasFixedSize(true)
-                 viewLayoutManager=LinearLayoutManager(context, LinearLayout.VERTICAL, false)
-                 layoutManager = viewLayoutManager
-                 this.adapter= sportsAdapter
-
-                     sportsAdapter?.list=articleListt
-                 sportsAdapter?.notifyItemInserted(articleListt?.size!!)
-
-                 Log.d("aia",articleListt.toString())
-             }*/
-
-
+        view.render(sportsState)
     }
-    override fun onPause() {
-        super.onPause()
-        repository.disposable?.dispose()
-    }
-
 
     companion object {
         fun create(): SportApiService {
@@ -85,19 +58,55 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
-    var disposable: Disposable? = null
-
-    fun beginSearch() {
-
-    }
-
-    fun getObservableFromString(articleList: List<Article>) {
-      articleListt=articleList
-    }
-
     private fun handleError(error: String?) {
+        Log.d("MainActivity", error.toString())
+    }
 
-        Log.d("aiaaaaaaaaaaaaaaaaa", error.toString())
+    override fun showLoading(sportsState: SportsState) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun render(sportsState: SportsState) {
+        when (sportsState) {
+            is SportsState.DataState -> renderDataState(sportsState)
+            is SportsState.LoadingState -> renderLoadingState()
+            is SportsState.ErrorState -> renderErrorState(sportsState)
+        }
+    }
+
+    private fun renderDataState(dataState: SportsState.DataState) {
+
+        viewLayoutManager = LinearLayoutManager(this)
+        rv.layoutManager = viewLayoutManager
+        sportsAdapter = SportsAdapter(articleListt, this)
+        rv.adapter = sportsAdapter
+        val dividerItemDecoration = DividerItemDecoration(
+            rv.context,
+            viewLayoutManager?.getOrientation()
+        )
+        rv.addItemDecoration(dividerItemDecoration)
+
+
+        val sportApiServe by lazy {
+            Repository.create()
+        }
+        sportApiServe.getSportsList("eg", "sports", "aa101e13a76b4e259ab2cc739092edb7")
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                {
+                    articleListt = it.articles
+                    sportsAdapter.list = articleListt
+                    articleListt?.lastIndex?.let { it1 -> sportsAdapter?.notifyItemInserted(it1) }
+
+                },
+                { error -> handleError(error.message) }
+            )
+    }
+
+    private fun renderLoadingState() {
+    }
+
+    private fun renderErrorState(errorState: SportsState.ErrorState) {
     }
 }
